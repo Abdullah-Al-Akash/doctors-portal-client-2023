@@ -1,12 +1,35 @@
-import React from 'react';
+import React, { useContext, useState } from 'react';
 import { useForm } from 'react-hook-form';
+import { toast } from 'react-hot-toast';
 import { Link } from 'react-router-dom';
+import { AuthContext } from '../../contexts/AuthProvider';
 
 const Signup = () => {
         const { register, handleSubmit, formState: { errors } } = useForm()
 
+        const [signupErr, setSignupErr] = useState('');
+
+        // Create User Funtionality:
+        const { createUser, updateUser } = useContext(AuthContext)
         const handleSignup = data => {
-                console.log(data);
+                setSignupErr('');
+                createUser(data.email, data.password)
+                        .then(result => {
+                                const user = result.user;
+                                console.log(user);
+                                const userInfo = {
+                                        displayName: data.name
+                                }
+                                toast('User Create Successfully!');
+                                updateUser(userInfo)
+                                        .then(() => { })
+                                        .catch(err => {
+                                                console.log(err);
+                                        })
+                        })
+                        .catch(err => {
+                                setSignupErr(err.message);
+                        })
         }
         return (
                 <section className="h-[650px] flex justify-center items-center">
@@ -34,6 +57,8 @@ const Signup = () => {
                                                 </label>
 
                                                 <input className='btn btn-accent text-white mt-4' value="Signup" type="submit" />
+
+                                                {signupErr && <p className='text-red-600'>{signupErr}</p>}
                                         </div>
                                 </form>
                                 <p className='text-center pt-4'>Already have an account? <Link className='text-secondary' to="/login">Login Here</Link></p>

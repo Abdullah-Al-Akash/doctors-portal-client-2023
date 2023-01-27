@@ -1,13 +1,26 @@
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { Link } from 'react-router-dom';
+import { AuthContext } from '../../contexts/AuthProvider';
 
 const Login = () => {
         // Handle Login Statement
+        const { signIn } = useContext(AuthContext);
+        const [loginErr, setLoginErr] = useState('');
+
         const { register, formState: { errors }, handleSubmit } = useForm();
 
         const handleLogin = data => {
-                console.log(data);
+                setLoginErr('');
+                signIn(data.email, data.password)
+                        .then(result => {
+                                const user = result.user;
+                                console.log(user);
+                        })
+                        .catch(err => {
+                                const errorMessage = err.message;
+                                setLoginErr(errorMessage);
+                        })
         }
         return (
                 <section className="h-[650px] flex justify-center items-center">
@@ -34,6 +47,7 @@ const Login = () => {
                                                 <label className="label">
                                                         <span className="label-text">Forget Password?</span>
                                                 </label>
+                                                {loginErr && <p className="text-red-500" role="alert">{loginErr}</p>}
 
                                                 <input className='btn btn-accent text-white mt-4' type="submit" value="Login" />
                                         </div>
